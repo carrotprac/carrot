@@ -21,45 +21,47 @@ const renderData = (data) => {
   // 이전 데이터 삭제
   main.innerHTML = "";
 
-  data.reverse().map(async (obj) => {
-    const div = document.createElement("div");
-    div.className = "item-list";
+  data
+    .map(async (obj) => {
+      const div = document.createElement("div");
+      div.className = "item-list";
 
-    const imgDiv = document.createElement("div");
-    imgDiv.className = "item-list__img";
+      const imgDiv = document.createElement("div");
+      imgDiv.className = "item-list__img";
 
-    const img = document.createElement("img");
-    const res = await fetch(`/images/${obj.id}`);
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    console.log(url);
-    img.src = url;
+      const img = document.createElement("img");
+      const res = await fetch(`/images/${obj.id}`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      console.log(url);
+      img.src = url;
 
-    const InfoDiv = document.createElement("div");
-    InfoDiv.className = "item-list__info";
+      const InfoDiv = document.createElement("div");
+      InfoDiv.className = "item-list__info";
 
-    const InfoTitleDiv = document.createElement("div");
-    InfoTitleDiv.className = "item-list__info-title";
-    InfoTitleDiv.innerText = obj.title;
+      const InfoTitleDiv = document.createElement("div");
+      InfoTitleDiv.className = "item-list__info-title";
+      InfoTitleDiv.innerText = obj.title;
 
-    const InfoMetaDiv = document.createElement("div");
-    InfoMetaDiv.className = "item-list__info-meta";
-    InfoMetaDiv.innerText = obj.place + " " + calculateTime(obj.insertAt);
+      const InfoMetaDiv = document.createElement("div");
+      InfoMetaDiv.className = "item-list__info-meta";
+      InfoMetaDiv.innerText = obj.place + " " + calculateTime(obj.insertAt);
 
-    const InfoPriceDiv = document.createElement("div");
-    InfoPriceDiv.className = "item-list__info-price";
-    InfoPriceDiv.innerText = obj.price;
+      const InfoPriceDiv = document.createElement("div");
+      InfoPriceDiv.className = "item-list__info-price";
+      InfoPriceDiv.innerText = obj.price;
 
-    imgDiv.appendChild(img);
-    InfoDiv.appendChild(InfoTitleDiv);
-    InfoDiv.appendChild(InfoMetaDiv);
-    InfoDiv.appendChild(InfoPriceDiv);
+      imgDiv.appendChild(img);
+      InfoDiv.appendChild(InfoTitleDiv);
+      InfoDiv.appendChild(InfoMetaDiv);
+      InfoDiv.appendChild(InfoPriceDiv);
 
-    div.appendChild(imgDiv);
-    div.appendChild(InfoDiv);
+      div.appendChild(imgDiv);
+      div.appendChild(InfoDiv);
 
-    main.appendChild(div);
-  });
+      main.appendChild(div);
+    })
+    .reverse();
 };
 
 let currentPage = 1; // 현재 페이지 초기값
@@ -78,7 +80,9 @@ const fetchList = async (currentPage) => {
   }
 
   const data = await res.json();
-  renderData(data);
+  console.log(data);
+  window.localStorage.totalPages = data.total_pages;
+  renderData(data.rows);
 };
 
 const getNext = (targetPage) => {
@@ -101,9 +105,27 @@ loadMoreBtn.addEventListener("click", () => {
 });
 
 const updatePageBtn = () => {
-  paginationBtns.forEach((btn) => {
-    btn.innerText = Number(btn.innerText) + 5;
-  });
+  console.log(Number(paginationBtns[4].innerText));
+  console.log(window.localStorage.totalPages);
+  if (Number(paginationBtns[4].innerText) < window.localStorage.totalPages) {
+    paginationBtns.forEach((btn) => {
+      btn.innerText = Number(btn.innerText) + 5;
+    });
+  } else if (
+    Number(paginationBtns[4].innerText) + 5 >=
+    window.localStorage.totalPages
+  ) {
+    let lastPageNum = Number(paginationBtns[4].innerText);
+
+    while (lastPageNum <= window.localStorage.totalPages) {
+      paginationBtns.forEach((btn) => {
+        lastPageNum += 1;
+        if (lastPageNum <= window.localStorage.totalPages) {
+          btn.innerText = lastPageNum;
+        }
+      });
+    }
+  }
 };
 
 fetchList(currentPage);

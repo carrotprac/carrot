@@ -115,45 +115,7 @@ async def create_items(
     results = await asyncio.gather(insert_item())
     print(results)
     return '200'
-    # async def insert_item(request):
-    #      # Extract data from request
-    #     form_data = await request.form()
-        
-    #     image_bytes = await form_data['image'].read()
-    #     title = form_data['title']
-    #     price = int(form_data['price'])
-    #     description = form_data['description']
-    #     place = form_data['place']
-    #     insertAt = int(form_data['insertAt'])
-        
-    #     cur.execute(f"""
-    #         INSERT INTO items(title,image,price,description,place,insertAt)
-    #         VALUES ('{title}','{image_bytes.hex()}',{price},'{description}','{place}',{insertAt})
-    #     """)
-    #     conn.commit()
-
-    # queue = asyncio.Queue()
-    # tasks = []
-
-    # # 요청을 큐에 추가
-    # while True:
-    #     form_data = await request.form()
-    #     if not form_data:
-    #         break
-    #     await queue.put(form_data)
-
-    # # 코루틴을 생성하고 실행
-    # for _ in range(10):  # 병렬로 실행할 코루틴 수
-    #     task = asyncio.create_task(insert_item(queue.get()))
-    #     tasks.append(task)
-
     
-    # # 모든 코루틴의 실행 완료를 기다림
-    # await asyncio.gather(*tasks)
-
-    # return '200'
-    
-
 @app.get('/items') #page: int = 1기본값으로 1을 가지며, 해당 파라미터가 전달되지 않았을 때 사용되는 값
 async def get_items(page: int = 1, user=Depends(manager)):
     print('page:', page)
@@ -167,7 +129,7 @@ async def get_items(page: int = 1, user=Depends(manager)):
 
     # 페이지당 행 수와 총 페이지 수 계산
     items_per_page = 10
-    total_pages = (total_rows / items_per_page) if (total_rows % items_per_page == 0) else (total_rows / items_per_page + 1) #items_per_page
+    total_pages = (total_rows / items_per_page) if (total_rows % items_per_page == 0) else (int(total_rows / items_per_page) + 1) #items_per_page
     offset = (page - 1) * items_per_page
     # 유효한 페이지 범위 확인
     if page < 1 or page > total_pages:
@@ -181,7 +143,7 @@ async def get_items(page: int = 1, user=Depends(manager)):
     conn.execute("COMMIT")  # 트랜잭션 커밋
     
     return JSONResponse(
-        jsonable_encoder(dict(row) for row in rows)
+       {"rows": jsonable_encoder(dict(row) for row in rows), "total_pages": total_pages}
         )
 
 @app.get('/images/{item_id}')

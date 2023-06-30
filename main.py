@@ -47,7 +47,7 @@ def query_user(id_datum):
     WHERE_STATEMENTS = f'id="{id_datum}"'
     if type(id_datum) == dict:
         WHERE_STATEMENTS = f'id="{id_datum["id"]}"'
-    
+      
     # 칼럼명 같이 가져오기
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()

@@ -1,1 +1,23 @@
-{}
+{
+  "name": "2023-carrot-clone",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^2.0.4",
+    "svelte": "^3.58.0",
+    "vite": "^4.3.9"
+  },
+  "description": "This template should help get you started developing with Svelte in Vite.",
+  "main": "svelte.config.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "svelte-spa-router": "^3.3.0"
+  }
+}

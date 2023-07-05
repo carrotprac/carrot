@@ -7,6 +7,7 @@ from fastapi_login.exceptions import InvalidCredentialsException
 from typing import Annotated
 import sqlite3
 import asyncio
+import hashlib
 
 # 기본적으로 check_same_thread는 True며, 만들고 있는 스레드 만 이 연결을 사용할 수 있습니다. 
 # False로 설정하면 반환된 연결을 여러 스레드에서 공유할 수 있습니다. 
@@ -83,6 +84,9 @@ def signup(id: Annotated[str, Form()],
            password: Annotated[str, Form()],
            name: Annotated[str, Form()],
            email: Annotated[str, Form()]):
+    
+    password = hash_password(password)
+    
     cur.execute(f"""
                 INSERT INTO users(id,name,email,password)
                 VALUES ('{id}','{name}','{email}','{password}')
@@ -153,5 +157,8 @@ async def get_image(item_id):
                               SELECT image from items WHERE id={item_id}
                               """).fetchone()[0] #튜플에서 불필요한 메타데이터 버리기
     return Response(content=bytes.fromhex(image_bytes), media_type='image/*')
+
+def hash_password(password:str):
+    return hashlib.sha256(password.encode()).hexdigest()
 
 app.mount("/", StaticFiles(directory="front", html=True), name="front")

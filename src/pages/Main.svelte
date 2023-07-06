@@ -1,5 +1,22 @@
 <script>
+  import { getDatabase, onValue, ref } from "firebase/database";
+  import Footer from "../components/Footer.svelte";
+  import { onMount } from "svelte";
+
   let time = new Date().toLocaleTimeString("ko-KR");
+
+  //반응형 변수 //렌더링하는 태그에서 자동으로 화면 업데이트
+  $: items = [];
+
+  const db = getDatabase();
+  const itemsRef = ref(db, "items/");
+
+  onMount(() => {
+    onValue(itemsRef, (snapshot) => {
+      const data = snapshot.val();
+      items = Object.values(data);
+    });
+  });
 </script>
 
 <header>
@@ -27,7 +44,22 @@
   </div>
 </header>
 
-<main />
+<main>
+  {#each items as item}
+    <div class="item-list">
+      <div class="item-list__img">
+        <img src={item.imgUrl} alt="" />
+      </div>
+      <div class="item-list__info">
+        <div class="item-list__info-title">{item.title}</div>
+        <div class="item-list__info-meta">{item.place}</div>
+        <div class="item-list__info-price">{item.price}</div>
+        <div>{item.description}</div>
+      </div>
+    </div>
+  {/each}
+  <a class="write-btn" href="#/write">+글쓰기</a>
+</main>
 
 <div id="pagination" class="pagination">
   <div class="pagination__pages">
@@ -39,41 +71,7 @@
     <button id="loadMoreBtn" class="load-more">>></button>
   </div>
 </div>
-<a class="write-btn" href="#/write">+글쓰기</a>
 
-<footer class="footer-block">
-  <div class="footer-icons">
-    <div class="footer-icons__img">
-      <img src="assets/home.svg" alt="" />
-    </div>
-    <div>홈</div>
-  </div>
-  <div class="footer-icons">
-    <div class="footer-icons__img">
-      <img src="assets/doc.svg" alt="" />
-    </div>
-    <div>동네생활</div>
-  </div>
-  <div class="footer-icons">
-    <div class="footer-icons__img">
-      <img src="assets/location.svg" alt="" />
-    </div>
-    <div>내 근처</div>
-  </div>
-  <div class="footer-icons">
-    <div class="footer-icons__img">
-      <a href="chat.html">
-        <img src="assets/chat.svg" alt="" />
-      </a>
-    </div>
-    <div>채팅</div>
-  </div>
-  <div class="footer-icons">
-    <div class="footer-icons__img">
-      <img src="assets/user.svg" alt="" />
-    </div>
-    <div>내 정보</div>
-  </div>
-</footer>
+<Footer location="home" />
 
 <div class="media-info-msg">화면사이즈를 줄여주세요</div>

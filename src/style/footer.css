@@ -43,4 +43,10 @@ footer {
   animation: icons-hover 2s;
 }
 
+button {
+  outline: none;
+  border: none;
+  background: none;
+}
+
 /*# sourceMappingURL=footer.css.map */

@@ -69,11 +69,12 @@ let currentPage = 1; // 현재 페이지 초기값
 const fetchList = async (currentPage) => {
   const accessToken = window.localStorage.getItem("token");
   const res = await fetch(`/items?page=${currentPage}`, {
+    credentials: "include",
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
-  if (res.status === 401) {
+  if (res.status == 401) {
     alert("로그인이 필요합니다!");
     window.location.pathname = "/login.html";
     return;

@@ -8,6 +8,11 @@ from typing import Annotated
 import sqlite3
 import asyncio
 import hashlib
+from dotenv import load_dotenv
+import os
+
+# .env 파일 로드
+load_dotenv()
 
 # 기본적으로 check_same_thread는 True며, 만들고 있는 스레드 만 이 연결을 사용할 수 있습니다. 
 # False로 설정하면 반환된 연결을 여러 스레드에서 공유할 수 있습니다. 
@@ -38,8 +43,11 @@ cur.execute(f"""
 
 app = FastAPI()
 
-SECRET = "test"
+SECRET = os.getenv('SECRET_KEY')
 manager = LoginManager(SECRET, '/login.html')
+
+async def get_token(request: Request):
+    return request.cookies.get("access_token")
 
 # ??????????? 
 @manager.user_loader()
@@ -60,7 +68,8 @@ def query_user(id_datum):
 
 @app.post('/login')
 def login(id: Annotated[str, Form()],
-          password: Annotated[str, Form()]):
+          password: Annotated[str, Form()],
+          response : Response):
     user = query_user(id)
     if not user:
         raise InvalidCredentialsException
@@ -76,7 +85,11 @@ def login(id: Annotated[str, Form()],
             'email':user['email'],
         }
     })
-    return {'access_token':access_token}
+    
+    # 응답 헤더에 쿠키 설정
+    response.set_cookie(key="access_token", value=access_token)
+    return {"message": "로그인 성공"}
+
     
 
 @app.post('/signup')
@@ -121,8 +134,13 @@ async def create_items(
     return '200'
     
 @app.get('/items') #page: int = 1기본값으로 1을 가지며, 해당 파라미터가 전달되지 않았을 때 사용되는 값
-async def get_items(page: int = 1, user=Depends(manager)):
+async def get_items(page: int = 1, token: str = Depends(get_token)):
+    print('token:', token)
     print('page:', page)
+    if not token:  # 토큰이 없는 경우
+        return JSONResponse(status_code=401, content={"message": "로그인을 해라"})
+    
+    
     conn.execute("BEGIN TRANSACTION")  # 트랜잭션 시작
     # 칼럼명 같이 가져오기
     conn.row_factory = sqlite3.Row
@@ -160,5 +178,7 @@ async def get_image(item_id):
 
 def hash_password(password:str):
     return hashlib.sha256(password.encode()).hexdigest()
+
+
 
 app.mount("/", StaticFiles(directory="front", html=True), name="front")

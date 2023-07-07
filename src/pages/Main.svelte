@@ -1,7 +1,7 @@
 <script>
   import { getDatabase, onValue, ref } from "firebase/database";
-  import Footer from "../components/Footer.svelte";
   import { onMount } from "svelte";
+  import Nav from "../components/Nav.svelte";
 
   let time = new Date().toLocaleTimeString("ko-KR");
 
@@ -72,6 +72,6 @@
   </div>
 </div>
 
-<Footer location="home" />
+<Nav location="home" />
 
 <div class="media-info-msg">화면사이즈를 줄여주세요</div>

@@ -1,12 +1,12 @@
 <script>
   import { getDatabase, ref, set, push } from "firebase/database";
-  import Footer from "../components/Footer.svelte";
   import {
     getDownloadURL,
     getStorage,
     ref as refImage,
     uploadBytes,
   } from "firebase/storage";
+  import Nav from "../components/Nav.svelte";
 
   let title;
   let price;
@@ -84,5 +84,4 @@
     <button type="submit">제출</button>
   </div>
 </form>
-
-<Footer location="write" />
+<Nav location="write" />
